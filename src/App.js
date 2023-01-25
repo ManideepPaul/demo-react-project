@@ -1,6 +1,6 @@
 import { Component } from 'react';
 
-import logo from './logo.svg';
+import CardList from './components/card-list/card-list.component';
 import './App.css';
 
 class App extends Component {
@@ -8,31 +8,40 @@ class App extends Component {
     super();
 
     this.state = {
-      monsters: []
+      monsters: [],
+      searchField: ''
     }
-    console.log('constructor')
+    // console.log('constructor')
   }
 
   componentDidMount() {
-    console.log('componentDidMount')
+    // console.log('componentDidMount')
     fetch('https://jsonplaceholder.typicode.com/users')
-    .then(response => response.json())
-    .then(user => this.setState(() => {
-      return {monsters: user}
-    },
-    () => {
-      console.log(this.state)
-    }))
+      .then(response => response.json())
+      .then(user => this.setState(() => {
+        return { monsters: user }
+      }))
   }
+
+  // This optimization will help up to not create the anonymous function on every re-render on the component. The onChange event will always refer to this function which was created on first time when function ran.(BY THIS WE CAN INCREASE THE PERFORMANCE ON THE APP A LITTLE BIT)
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLowerCase()
+    this.setState(() => {
+      return { searchField }
+    })
+  }
+
   render() {
-    console.log('render')
+
+    // This optimization will help to make our code more readable
+    const { monsters, searchField } = this.state;
+    const { onSearchChange } = this;
+    // console.log('App.js')
+    const filteredMonster = monsters.filter((monster) => monster.name.toLowerCase().includes(searchField));
     return (
       <div className="App">
-        <input className='search-box' type='search' placeholder='search monsters' onChange={(e) => {
-          const filteredMonster = this.state.monsters.filter((monster) => monster.name.includes(e.target.value)) ;
-          this.setState({monsters: filteredMonster})
-        }}/>
-        {this.state.monsters.map((monster, index) => <h1 key={index}>{monster.name}</h1>)}
+        <input className='search-box' type='search' placeholder='search monsters' onChange={onSearchChange} />
+        <CardList monsters={filteredMonster}/>
       </div>
     );
   }
