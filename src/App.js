@@ -8,25 +8,31 @@ import './App.css';
 const App = () => {
 
   const [searchField, setSearchField] = useState('');
-  const [monsters, setMonsters] = useState([])
+  const [monsters, setMonsters] = useState([]);
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters)
 
   console.log(searchField)
 
   useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/users')
-        .then(response => response.json())
-        .then(user => setMonsters(user))
+      .then(response => response.json())
+      .then(user => setMonsters(user))
   }, [])
 
+  // Filtering the monsters inside the useEffect hook will do the filtering if only monsters and searchField changes. If we don't put it inside the useEffect it will run every time the component re-renders.
+
+  useEffect(() => {
+    const newFilteredMonster = monsters.filter((monster) => {
+      return monster.name.toLowerCase().includes(searchField)
+    })
+
+    setFilteredMonsters(newFilteredMonster)
+  }, [monsters, searchField])
 
   const onSearchChange = (event) => {
     const searchFieldString = event.target.value.toLowerCase()
     setSearchField(searchFieldString)
   }
-
-  const filteredMonster = monsters.filter((monster) => {
-    return monster.name.toLowerCase().includes(searchField)
-  })
 
   return (
     <div className="App" >
@@ -37,7 +43,7 @@ const App = () => {
         placeholder='Search monsters'
         className='monster-search-box'
       />
-      <CardList monsters={filteredMonster} />
+      <CardList monsters={filteredMonsters} />
     </div>
   )
 }
